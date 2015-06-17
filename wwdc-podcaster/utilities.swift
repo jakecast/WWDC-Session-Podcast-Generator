@@ -75,6 +75,10 @@ private func processSessionInfo(sessionInfo: [String:AnyObject]) -> [String:[[St
                 sessionData["download_sd"] = sessionData["url"]
             }
             
+            if let id = sessionData["id"] as? Int, let title = sessionData["title"] as? String {
+                sessionData["title"] = "\(id) - \(title)"
+            }
+            
             wwdcSessionInfo[sessionYear]?.append(sessionData)
         }
     }

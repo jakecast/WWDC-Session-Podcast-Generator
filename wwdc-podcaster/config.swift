@@ -2,16 +2,23 @@ import Foundation
 
 internal struct Config {
     internal let wwdcSessionInfoFile = Process.arguments.last ?? "null"
-    internal let wwdcSessionInfoURL = "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/wwdc-podcaster/sessions.json"
+    internal let wwdcSessionInfoURL = "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/sessions.json"
     
     internal let feedAuthor = "Apple Developer Center"
     internal let feedDirectory = "Desktop"
     internal let feedYears = ["2011", "2012", "2013", "2014", "2015", ]
     
     private let feedDescription = "WWDC %%%% Session Videos - Apple Developer"
-    private let feedFileName = "wwdc-%%%%-feed.rss"
+    private let feedFileName = "wwdc-%%%%.rss"
     private let feedLink = "https://developer.apple.com/videos/wwdc/%%%%/"
     private let feedTitle = "WWDC %%%% Session Videos - Apple Developer"
+    private let feedImages = [
+        "2011": "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/wwdc-2011.png",
+        "2012": "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/wwdc-2012.png",
+        "2013": "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/wwdc-2013.png",
+        "2014": "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/wwdc-2014.png",
+        "2015": "https://raw.githubusercontent.com/jakecast/WWDC-Session-Podcast-Generator/master/data/wwdc-2015.png",
+    ]
     
     internal func getFeedFileName(year: String) -> String {
         return self.getFeedString(self.feedFileName, year: year)
@@ -30,7 +37,7 @@ internal struct Config {
     }
     
     internal func getFeedImage(year: String) -> String {
-        return "http://devstreaming.apple.com/videos/wwdc/2015/1014o78qhj07pbfxt9g7/101/images/101_600x600.jpg"
+        return self.feedImages[year]!
     }
     
     private func getFeedString(baseString: String, year: String) -> String {
