@@ -1,48 +1,37 @@
 import Foundation
 
-internal struct WWDCPodcastFile {
-    internal var title: String = "WWDC Session Videos"
-    internal var websiteURL: String = "https://developer.apple.com/"
-    internal var imageURL: String = "http://devstreaming.apple.com/videos/wwdc/2015/1014o78qhj07pbfxt9g7/101/images/101_600x600.jpg"
-    internal var items: [[String:AnyObject]] = []
+private let fileManager = NSFileManager.defaultManager()
+
+internal func generateSessionPodcastFeed(year: String, sessions: [[String:AnyObject]]) {
+    let feedDirectory = NSHomeDirectory()
+        .stringByAppendingPathComponent(config.feedDirectory)
+        .stringByAppendingPathComponent("wwdc-feeds")
+    let feedFilePath = feedDirectory
+        .stringByAppendingPathComponent(config.getFeedFileName(year))
+    let feedData = createFeedDocument(year, sessions: sessions)
     
-    static func createImageElement(imageURL: String) -> NSXMLElement {
-        let imageElement = NSXMLElement()
-        imageElement.name = "itunes:image"
-        imageElement.setAttributesWithDictionary([
-            "href": imageURL
-        ])
-        return imageElement
+    createDirectoryIfNeeded(feedDirectory)
+    createFeedDocumentFile(feedFilePath, data: feedData)
+}
+
+private func createDirectoryIfNeeded(directoryPath: String) {
+    if fileManager.fileExistsAtPath(directoryPath) == false {
+        do { try fileManager.createDirectoryAtPath(directoryPath, withIntermediateDirectories: true, attributes: nil) } catch {}
+    }
+}
+
+private func createFeedDocumentFile(filePath: String, data: NSData) {
+    fileManager.createFileAtPath(filePath, contents: data, attributes: nil)
+}
+
+private func createFeedDocument(year: String, sessions: [[String:AnyObject]]) -> NSData {
+    func newDocument() -> NSXMLDocument {
+       let document = NSXMLDocument()
+        document.version = "1.0"
+        return document
     }
     
-    static func createEnclosureElement(videoURL: String) -> NSXMLElement {
-        let enclosureElement = NSXMLElement()
-        enclosureElement.name = "enclosure"
-        enclosureElement.setAttributesWithDictionary([
-            "url": videoURL,
-            "type": "video/quicktime",
-        ])
-        return enclosureElement
-    }
-    
-    internal func generate(filePath: String) {
-        let xmlFileURL = NSURL(fileURLWithPath: filePath)
-        let xmlDocument = self.createDocument()
-        let xmlDocumentData = xmlDocument.XMLDataWithOptions(NSXMLNodePrettyPrint | NSXMLNodeCompactEmptyElement)
-        
-        NSFileManager
-            .defaultManager()
-            .createFileAtPath(xmlFileURL.path!, contents: xmlDocumentData, attributes: nil)
-    }
-    
-    private func createDocument() -> NSXMLDocument {
-        let xmlDocument = NSXMLDocument()
-        xmlDocument.version = "1.0"
-        xmlDocument.setRootElement(self.createRootElement())
-        return xmlDocument
-    }
-    
-    private func createRootElement() -> NSXMLElement {
+    func newRootElement() -> NSXMLElement {
         let rootElement = NSXMLElement()
         rootElement.name = "rss"
         rootElement.setAttributesWithDictionary([
@@ -51,37 +40,72 @@ internal struct WWDCPodcastFile {
             "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
             "version": "2.0",
         ])
-        rootElement.addChild(self.createChannelElement())
         return rootElement
     }
     
-    private func createChannelElement() -> NSXMLElement {
-        let channelElement = NSXMLElement()
-        channelElement.name = "channel"
-        channelElement.addChild(NSXMLElement(name: "title", stringValue: self.title))
-        channelElement.addChild(NSXMLElement(name: "description", stringValue: self.title))
-        channelElement.addChild(NSXMLElement(name: "link", stringValue: self.websiteURL))
-        channelElement.addChild(NSXMLElement(name: "language", stringValue: "en-US"))
-        channelElement.addChild(NSXMLElement(name: "itunes:complete", stringValue: "yes"))
-        channelElement.addChild(NSXMLElement(name: "itunes:author", stringValue: "Jake Kirshner"))
-        channelElement.addChild(WWDCPodcastFile.createImageElement(self.imageURL))
-        
-        for item in self.items {
-            channelElement.addChild(self.createItemElement(item))
+    func newChannelElement(title: String, description: String, url: String, author: String, image: String) -> NSXMLElement {
+        func newImageElement(image: String) -> NSXMLElement {
+            let imageElement = NSXMLElement()
+            imageElement.name = "itunes:image"
+            imageElement.setAttributesWithDictionary([
+                "href": image
+            ])
+            return imageElement
         }
         
+        let channelElement = NSXMLElement()
+        channelElement.name = "channel"
+        channelElement.setChildren([
+            NSXMLElement(name: "title", stringValue: title),
+            NSXMLElement(name: "description", stringValue: description),
+            NSXMLElement(name: "link", stringValue: url),
+            NSXMLElement(name: "language", stringValue: "en-US"),
+            NSXMLElement(name: "itunes:complete", stringValue: "yes"),
+            NSXMLElement(name: "itunes:author", stringValue: author),
+            newImageElement(image),
+        ])
         return channelElement
     }
     
-    private func createItemElement(itemData: [String:AnyObject]) -> NSXMLElement {
-        let itemElement = NSXMLElement()
-        itemElement.name = "item"
-        itemElement.addChild(NSXMLElement(name: "title", stringValue: itemData["title"] as? String))
-        itemElement.addChild(NSXMLElement(name: "itunes:subtitle", stringValue: itemData["description"] as? String))
-        itemElement.addChild(NSXMLElement(name: "itunes:summary", stringValue: itemData["description"] as? String))
-        itemElement.addChild(WWDCPodcastFile.createEnclosureElement(itemData["download_hd"] as! String))
-        itemElement.addChild(NSXMLElement(name: "guid", stringValue: itemData["download_hd"] as? String))
-        itemElement.addChild(NSXMLElement(name: "pubDate", stringValue: NSDate().description))
-        return itemElement
+    func newSessionElement(sessionInfo: [String:AnyObject]) -> NSXMLElement {
+        func newVideoEnclosureElement(videoURL: String) -> NSXMLElement {
+            let videoEnclosureElement = NSXMLElement()
+            videoEnclosureElement.name = "enclosure"
+            videoEnclosureElement.setAttributesWithDictionary([
+                "url": videoURL,
+                "type": "video/quicktime",
+            ])
+            return videoEnclosureElement
+        }
+        let sessionElement = NSXMLElement()
+        sessionElement.name = "item"
+        sessionElement.setChildren([
+            NSXMLElement(name: "title", stringValue: sessionInfo["title"] as? String),
+            NSXMLElement(name: "itunes:subtitle", stringValue: sessionInfo["description"] as? String),
+            NSXMLElement(name: "itunes:summary", stringValue: sessionInfo["description"] as? String),
+            newVideoEnclosureElement(sessionInfo["download_hd"] as! String),
+            NSXMLElement(name: "guid", stringValue: sessionInfo["download_hd"] as? String),
+            NSXMLElement(name: "pubDate", stringValue: sessionInfo["dateString"] as? String),
+        ])
+        return sessionElement
     }
+    
+    let document = newDocument()
+    let documentRoot = newRootElement()
+    let documentChannel = newChannelElement(
+        config.getFeedTitle(year),
+        description: config.getFeedDescription(year),
+        url: config.getFeedLink(year),
+        author: config.feedAuthor,
+        image: config.getFeedImage(year)
+    )
+    
+    document.setRootElement(documentRoot)
+    documentRoot.addChild(documentChannel)
+    
+    for sessionInfo in sessions {
+        documentChannel.addChild(newSessionElement(sessionInfo))
+    }
+    
+    return document.XMLDataWithOptions(NSXMLNodePrettyPrint | NSXMLNodeCompactEmptyElement)
 }

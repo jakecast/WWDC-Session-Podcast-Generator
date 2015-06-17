@@ -9,12 +9,17 @@
 /* Begin PBXBuildFile section */
 		230D14AB1B30E09600DA07DC /* generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230D14AA1B30E09600DA07DC /* generator.swift */; };
 		23BCFD161B30D6010018836B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BCFD151B30D6010018836B /* main.swift */; };
+		23C26B4A1B321897008CDE05 /* config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C26B491B321897008CDE05 /* config.swift */; };
+		23C26B4C1B3218E7008CDE05 /* utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23C26B4B1B3218E7008CDE05 /* utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		230D14AA1B30E09600DA07DC /* generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = generator.swift; sourceTree = "<group>"; };
 		23BCFD121B30D6010018836B /* wwdc-podcaster */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "wwdc-podcaster"; sourceTree = BUILT_PRODUCTS_DIR; };
 		23BCFD151B30D6010018836B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		23C26B491B321897008CDE05 /* config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = config.swift; sourceTree = "<group>"; };
+		23C26B4B1B3218E7008CDE05 /* utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = utilities.swift; sourceTree = "<group>"; };
+		23C26B4E1B323174008CDE05 /* wwdc-podcaster.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = "wwdc-podcaster.playground"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,8 +52,11 @@
 		23BCFD141B30D6010018836B /* wwdc-podcaster */ = {
 			isa = PBXGroup;
 			children = (
+				23C26B4E1B323174008CDE05 /* wwdc-podcaster.playground */,
 				23BCFD151B30D6010018836B /* main.swift */,
+				23C26B491B321897008CDE05 /* config.swift */,
 				230D14AA1B30E09600DA07DC /* generator.swift */,
+				23C26B4B1B3218E7008CDE05 /* utilities.swift */,
 			);
 			path = "wwdc-podcaster";
 			sourceTree = "<group>";
@@ -108,7 +116,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23C26B4A1B321897008CDE05 /* config.swift in Sources */,
 				23BCFD161B30D6010018836B /* main.swift in Sources */,
+				23C26B4C1B3218E7008CDE05 /* utilities.swift in Sources */,
 				230D14AB1B30E09600DA07DC /* generator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
