@@ -103,5 +103,25 @@ private func processSessionInfo(sessionInfo: [String:AnyObject]) -> [String:[[St
         wwdcSessionInfo[year] = sessionsSorted
     }
     
+    var updatedSessionInfo: [String:[[String:AnyObject]]] = [:]
+    for (year, sessions) in wwdcSessionInfo {
+        var updatedSessions: [[String:AnyObject]] = []
+        
+        for (idx, session) in sessions.enumerate() {
+            var updatedSession: [String:AnyObject] = session
+            
+            if let sessionDate = session["date"] as? NSTimeInterval {
+                let newSessionDate = sessionDate + NSTimeInterval(idx * 60)
+                updatedSession["date"] = newSessionDate
+                updatedSession["dateString"] = pubDateFormatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: newSessionDate))
+            }
+            
+            updatedSessions.append(updatedSession)
+        }
+        
+        updatedSessionInfo[year] = updatedSessions
+    }
+    wwdcSessionInfo = updatedSessionInfo
+    
     return wwdcSessionInfo
 }
